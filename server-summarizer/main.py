@@ -73,11 +73,6 @@ async def get_summarizer_status():
         )
     ]
 
-@app.post("/config")
-async def update_summarizer_config(config: SummarizerConfig):
-    """Update the summarizer configuration"""
-    return {"message": "Configuration updated successfully", "config": config}
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)  # Note: Using 8001 to avoid conflict with crawler 
