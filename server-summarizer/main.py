@@ -61,7 +61,7 @@ async def summarize_text(request: SummaryRequest):
         logger.error(f"Error in summarizer: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/status", response_model=List[AgentStatusResponse])
+@app.get("/summarizer/status", response_model=List[AgentStatusResponse])
 async def get_summarizer_status():
     """Get status of all summarizer agents"""
     return [
