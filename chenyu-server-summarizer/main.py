@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Configure OpenAI client
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.environ.get("OPENAI_API_KEY")
 )
 
 # Enums for status
