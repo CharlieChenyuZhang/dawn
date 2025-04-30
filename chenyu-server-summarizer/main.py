@@ -116,4 +116,4 @@ async def get_summarizer_status():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)  # Note: Using 8001 to avoid conflict with crawler 
+    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)  # Note: Using 8001 to avoid conflict with crawler 
