@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 from enum import Enum
 from typing import List, Optional, Dict, Any
@@ -12,6 +13,15 @@ from firecrawl import FirecrawlApp, ScrapeOptions
 load_dotenv()
 
 app = FastAPI(title="Web Crawler API")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React app's default port
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
