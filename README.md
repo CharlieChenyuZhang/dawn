@@ -8,15 +8,24 @@ Chenyu Zhang, Alan Morelos
 
 # how to run clinet
 
-TBD
+make sure you are using node v23.0.0
+
+`cd client`
+`npm ci`
+`npm start`
 
 # how to run server-crawler
 
-TBD
+`cd server-crawler`
+`conda create -n dawn python=3.11`
+`pip install -r requirements.txt`
+`python main.py`
 
 # how to run server-summarizer
 
-TBD
+`cd server-summarizer`
+`pip install -r requirements.txt`
+`python main.py`
 
 # Acknowledgements
 
