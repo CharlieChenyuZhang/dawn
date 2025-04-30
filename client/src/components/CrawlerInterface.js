@@ -40,7 +40,7 @@ const CrawlerInterface = () => {
       });
 
       const data = await response.json();
-      setSummaries(Array.isArray(data) ? data : [data]);
+      setSummaries([data.summary]);
     } catch (error) {
       console.error("Error running crawler:", error);
       setSummaries([
