@@ -54,7 +54,7 @@ const CrawlerInterface = () => {
   return (
     <div className="crawler-interface">
       <div className="input-section">
-        {/* <div className="search-depth">
+        <div className="search-depth">
           <label>Search depth:</label>
           <input
             type="number"
@@ -62,7 +62,7 @@ const CrawlerInterface = () => {
             onChange={(e) => setSearchDepth(parseInt(e.target.value))}
             min="1"
           />
-        </div> */}
+        </div>
 
         <div className="agents-list">
           {agents.map((agent, index) => (
