@@ -21,7 +21,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configure OpenAI client
-client = OpenAI()  # Will automatically use OPENAI_API_KEY from environment
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+)
 
 # Enums for status
 class AgentStatus(str, Enum):
@@ -116,4 +118,4 @@ async def get_summarizer_status():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)  # Note: Using 8001 to avoid conflict with crawler 
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True) 
