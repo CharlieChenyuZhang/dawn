@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from firecrawl import FirecrawlApp, ScrapeOptions
+import httpx
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,6 +31,9 @@ logger = logging.getLogger(__name__)
 # Initialize FirecrawlApp
 firecrawl = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
 
+# Constants
+SUMMARIZER_URL = "http://localhost:8001/summarize"
+
 # Enums for status
 class CrawlerStatus(str, Enum):
     CRAWLING = "crawling"
@@ -47,6 +51,7 @@ class CrawlRequest(BaseModel):
 
 class CrawlResponse(BaseModel):
     markdown: str
+    summary: Optional[str]
     url: str
     timestamp: str
     map: list[str]
@@ -70,15 +75,32 @@ async def crawl_urls(request: CrawlRequest):
         print(f"Page: {page}")
         page_content = page.markdown
         
-        
+        # Get the site map
         map_result = firecrawl.map_url(str(request.urls[0])).links
+        
+        # Call the summarizer service
+        summary = None
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    SUMMARIZER_URL,
+                    json={"text": page_content}
+                )
+                if response.status_code == 200:
+                    summary_data = response.json()
+                    summary = summary_data["summary"]
+                else:
+                    logger.warning(f"Failed to get summary: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"Error calling summarizer service: {str(e)}")
+        
         return CrawlResponse(
             markdown=page_content,
+            summary=summary,
             map=map_result,
             url=str(request.urls[0]),
             timestamp=datetime.utcnow().isoformat()
         )
-        
         
     except Exception as e:
         logger.error(f"Error crawling website: {str(e)}")
