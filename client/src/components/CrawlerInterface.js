@@ -7,6 +7,8 @@ const CrawlerInterface = () => {
   const [searchDepth, setSearchDepth] = useState(4);
   const [isLoading, setIsLoading] = useState(false);
 
+  console.log("agents", agents);
+
   const handleAddAgent = () => {
     setAgents([...agents, { url: "" }]);
   };
@@ -24,33 +26,61 @@ const CrawlerInterface = () => {
     }
   };
 
-  const handleTestRun = async () => {
+  const handleCrawlerRun = async () => {
     setIsLoading(true);
+    setSummaries([]); // Reset summaries at start
     try {
-      const response = await fetch("http://localhost:8000/crawl", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          urls: agents
-            .map((agent) => agent.url)
-            .filter((url) => url.trim() !== ""),
-        }),
-      });
+      const validUrls = agents.filter((agent) => agent.url.trim() !== "");
 
-      const data = await response.json();
-      setSummaries([data.summary]);
+      // Create a promise for each URL but handle them individually
+      validUrls.forEach(async (agent, index) => {
+        try {
+          const response = await fetch("http://localhost:8000/crawl", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              urls: [agent.url],
+            }),
+          });
+          const data = await response.json();
+          console.log("data for url", agent.url, data);
+
+          console.log("summary", data.summary);
+          console.log("markdown", data.markdown);
+          // Update summaries array by adding the new summary
+          setSummaries((prevSummaries) => [
+            ...prevSummaries,
+            {
+              summary: data?.summary,
+              url: data?.url,
+              markdown: data?.markdown,
+              error: null,
+            },
+          ]);
+        } catch (error) {
+          console.error("Error processing URL:", agent.url, error);
+          setSummaries((prevSummaries) => [
+            ...prevSummaries,
+            { error: `Error processing ${agent.url}: ${error.message}` },
+          ]);
+        }
+      });
     } catch (error) {
       console.error("Error running crawler:", error);
       setSummaries([
-        "Error: Failed to run crawler. Please check the server connection.",
+        {
+          error:
+            "Error: Failed to run crawler. Please check the server connection.",
+        },
       ]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  console.log("summaries", summaries);
   return (
     <div className="crawler-interface">
       <div className="input-section">
@@ -98,10 +128,10 @@ const CrawlerInterface = () => {
 
         <button
           className="test-run"
-          onClick={handleTestRun}
+          onClick={handleCrawlerRun}
           disabled={isLoading}
         >
-          {isLoading ? "Running..." : "Test run"}
+          {isLoading ? "Running..." : "Run"}
         </button>
       </div>
 
@@ -110,9 +140,11 @@ const CrawlerInterface = () => {
           <h2>Summary</h2>
         </div>
         <div className="summary-content">
-          {summaries.map((summary, index) => (
+          {summaries.map((each, index) => (
             <div key={index} className="summary-item">
-              {summary}
+              Url: {each.url}
+              Summary: {each.summary}
+              Markdown: {each.markdown}
             </div>
           ))}
           {summaries.length === 0 && !isLoading && (

@@ -88,6 +88,7 @@ async def summarize_text(request: SummaryRequest):
         )
         
         summary = response.choices[0].message.content.strip()
+        print("summary", summary)
         
         return SummaryResponse(
             original_length=len(request.text),
