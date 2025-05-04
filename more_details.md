@@ -1,0 +1,7 @@
+I want you to build our the primary summarizer more. 
+
+This is the functionality that I want. I this system to work in such a way that it can be run on multiple machines. What this means is that I dont want you to just kickstart multiple processes, but I want the functionality to work as if its multiple machines.
+
+First I want a primary server summarizer leader on a separate machine. This summarizer leader is responsible for greedily giving a "worker" summarizer some summary that it receives from the crawler. There should be 3 "worker" summarizers. The workers should send heartbearts to the current summarizer leader so that the leader knows if its alive or not. If it is not alive, then the leader kicks it back alive. It should keep track of which summaries are completed (based on the URLs). For now you can just generate some fake api where you get dummy data markdown from a page with a sample URL or try to integrate it with the existing implementatation.
+
+For fault tolerance, I only need it for the leader. I want you to create 2 additional backup leader instances. These should be on standby, and they should all be sending their heartbeats to each other respectively. Assuming the main leader goes down, the backup replaces it and then has control of the workers. Make sure that the actual leader is the one in communication with the REST API to the crawler.
