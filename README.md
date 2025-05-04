@@ -28,7 +28,31 @@ make sure you are using node v23.0.0
 `conda create -n dawn-summarizer python=3.11`
 `conda activate dawn-summarizer`
 `pip install -r requirements.txt`
-`python main.py`
+
+## Terminal 1: Primary leader
+`python run_leader.py primary`
+
+## Terminal 2: First backup leader
+`python run_leader.py backup1`
+
+## Terminal 3: Second backup leader
+`python run_leader.py backup2`
+
+## Terminal 4: Worker 
+`python run_worker.py 1 #repeat command with numbers 2 and 3`
+
+## Testing
+### Check health
+`python test_client.py health`
+
+### Submit an article
+`python test_client.py submit --article 0`
+
+### Check the result (replace with your task ID)
+`python test_client.py task <task_id>`
+
+### Or run a full test
+`python test_client.py test`
 
 # UIs
 <img width="1728" alt="Screenshot 2025-05-04 at 6 06 04 PM" src="https://github.com/user-attachments/assets/97e28740-570b-4fd8-9855-de1128e48498" />
