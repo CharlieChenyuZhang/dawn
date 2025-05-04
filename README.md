@@ -24,6 +24,8 @@ make sure you are using node v23.0.0
 
 # how to run server-summarizer
 
+Note that all of this should be able to run on a separate machine, you just need to modify `config.py` with the correct machine details.
+
 `cd server-summarizer`
 `conda create -n dawn-summarizer python=3.11`
 `conda activate dawn-summarizer`
