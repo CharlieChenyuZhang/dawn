@@ -30,6 +30,11 @@ make sure you are using node v23.0.0
 `pip install -r requirements.txt`
 `python main.py`
 
+# UIs
+<img width="1728" alt="Screenshot 2025-05-04 at 6 06 04 PM" src="https://github.com/user-attachments/assets/97e28740-570b-4fd8-9855-de1128e48498" />
+<img width="1728" alt="Screenshot 2025-05-04 at 6 06 45 PM" src="https://github.com/user-attachments/assets/cb392c1c-ecfa-4656-b3bb-74a5cd0e83b6" />
+
+
 # Acknowledgements
 
 This project was developed as the final assignment for COMPSCI 2620: Introduction to Distributed Computing (Spring 2025) at Harvard University.
