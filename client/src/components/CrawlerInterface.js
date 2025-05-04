@@ -6,6 +6,7 @@ const CrawlerInterface = () => {
   const [summaries, setSummaries] = useState([]);
   const [searchDepth, setSearchDepth] = useState(4);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingUrls, setLoadingUrls] = useState([]);
 
   const handleAddAgent = () => {
     setAgents([...agents, { url: "" }]);
@@ -33,8 +34,8 @@ const CrawlerInterface = () => {
         setIsLoading(false);
         return;
       }
-      // Create a promise for each URL but handle them individually
       validUrls.forEach(async (agent, index) => {
+        setLoadingUrls((prev) => [...prev, agent.url]);
         try {
           const response = await fetch("http://localhost:8000/crawl", {
             method: "POST",
@@ -46,7 +47,6 @@ const CrawlerInterface = () => {
             }),
           });
           const data = await response.json();
-          // Update summaries array by adding the new summary
           setSummaries((prevSummaries) => [
             ...prevSummaries,
             {
@@ -61,6 +61,8 @@ const CrawlerInterface = () => {
             ...prevSummaries,
             { error: `Error processing ${agent.url}: ${error.message}` },
           ]);
+        } finally {
+          setLoadingUrls((prev) => prev.filter((url) => url !== agent.url));
         }
       });
     } catch (error) {
@@ -152,6 +154,18 @@ const CrawlerInterface = () => {
           <h2>Summary</h2>
         </div>
         <div className="summary-content">
+          {loadingUrls.length > 0 && (
+            <div className="currently-loading">
+              <strong>Currently processing:</strong>
+              <ul>
+                {loadingUrls.map((url, idx) => (
+                  <div>
+                    <span className="loading-dot" /> {url}
+                  </div>
+                ))}
+              </ul>
+            </div>
+          )}
           {summaries.map((each, index) => (
             <div key={index} className="summary-card">
               {each.error ? (
