@@ -7,8 +7,6 @@ const CrawlerInterface = () => {
   const [searchDepth, setSearchDepth] = useState(4);
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log("agents", agents);
-
   const handleAddAgent = () => {
     setAgents([...agents, { url: "" }]);
   };
@@ -31,7 +29,10 @@ const CrawlerInterface = () => {
     setSummaries([]); // Reset summaries at start
     try {
       const validUrls = agents.filter((agent) => agent.url.trim() !== "");
-
+      if (validUrls.length === 0) {
+        setIsLoading(false);
+        return;
+      }
       // Create a promise for each URL but handle them individually
       validUrls.forEach(async (agent, index) => {
         try {
@@ -45,10 +46,6 @@ const CrawlerInterface = () => {
             }),
           });
           const data = await response.json();
-          console.log("data for url", agent.url, data);
-
-          console.log("summary", data.summary);
-          console.log("markdown", data.markdown);
           // Update summaries array by adding the new summary
           setSummaries((prevSummaries) => [
             ...prevSummaries,
@@ -60,7 +57,6 @@ const CrawlerInterface = () => {
             },
           ]);
         } catch (error) {
-          console.error("Error processing URL:", agent.url, error);
           setSummaries((prevSummaries) => [
             ...prevSummaries,
             { error: `Error processing ${agent.url}: ${error.message}` },
@@ -68,7 +64,6 @@ const CrawlerInterface = () => {
         }
       });
     } catch (error) {
-      console.error("Error running crawler:", error);
       setSummaries([
         {
           error:
@@ -80,30 +75,35 @@ const CrawlerInterface = () => {
     }
   };
 
-  console.log("summaries", summaries);
   return (
     <div className="crawler-interface">
       <div className="input-section">
         <div className="search-depth">
-          <label>Search depth:</label>
+          <label htmlFor="search-depth-input">Search depth:</label>
           <input
+            id="search-depth-input"
             type="number"
             value={searchDepth}
             onChange={(e) => setSearchDepth(parseInt(e.target.value))}
             min="1"
+            aria-label="Search depth"
           />
         </div>
 
         <div className="agents-list">
           {agents.map((agent, index) => (
             <div key={index} className="agent-input">
-              <label>Crawler Agent {index + 1}</label>
+              <label htmlFor={`agent-url-${index}`}>{`Crawler Agent ${
+                index + 1
+              }`}</label>
               <div className="input-with-delete">
                 <input
+                  id={`agent-url-${index}`}
                   type="url"
                   placeholder="please provide a website url"
                   value={agent.url}
                   onChange={(e) => handleUrlChange(index, e.target.value)}
+                  aria-label={`URL for Crawler Agent ${index + 1}`}
                 />
                 <button
                   className="delete-button"
@@ -114,6 +114,11 @@ const CrawlerInterface = () => {
                       ? "Cannot delete the last agent"
                       : "Delete agent"
                   }
+                  aria-label={
+                    agents.length === 1
+                      ? "Cannot delete the last agent"
+                      : `Delete Crawler Agent ${index + 1}`
+                  }
                 >
                   <i className="fas fa-trash"></i>
                 </button>
@@ -122,14 +127,21 @@ const CrawlerInterface = () => {
           ))}
         </div>
 
-        <button className="add-agent" onClick={handleAddAgent}>
+        <button
+          className="add-agent"
+          onClick={handleAddAgent}
+          aria-label="Add Agent"
+        >
           Add Agent
         </button>
 
         <button
           className="test-run"
           onClick={handleCrawlerRun}
-          disabled={isLoading}
+          disabled={
+            isLoading || agents.filter((a) => a.url.trim() !== "").length === 0
+          }
+          aria-label="Run Crawler"
         >
           {isLoading ? "Running..." : "Run"}
         </button>
@@ -141,16 +153,41 @@ const CrawlerInterface = () => {
         </div>
         <div className="summary-content">
           {summaries.map((each, index) => (
-            <div key={index} className="summary-item">
-              Url: {each.url}
-              Summary: {each.summary}
-              Markdown: {each.markdown}
+            <div key={index} className="summary-card">
+              {each.error ? (
+                <div className="summary-error" role="alert">
+                  {each.error}
+                </div>
+              ) : (
+                <>
+                  <div className="summary-url">
+                    <strong>URL:</strong>{" "}
+                    <a
+                      href={each.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {each.url}
+                    </a>
+                  </div>
+                  <div className="summary-title">
+                    <strong>Summary:</strong>
+                  </div>
+                  <div className="summary-text">{each.summary}</div>
+                  <div className="summary-title">
+                    <strong>Markdown:</strong>
+                  </div>
+                  <pre className="summary-markdown">{each.markdown}</pre>
+                </>
+              )}
             </div>
           ))}
           {summaries.length === 0 && !isLoading && (
             <p className="no-results">Run the crawler to see results</p>
           )}
-          {isLoading && <p className="loading">Processing...</p>}
+          {isLoading && (
+            <div className="loading-spinner" aria-label="Loading"></div>
+          )}
         </div>
       </div>
     </div>
