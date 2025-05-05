@@ -5,6 +5,11 @@ Usage: python run_worker.py [1|2|3]
 import sys
 from crawler_worker import CrawlerWorkerNode
 import config
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file in the current directory
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
 if __name__ == "__main__":
     if len(sys.argv) != 2 or sys.argv[1] not in ["1", "2", "3"]:

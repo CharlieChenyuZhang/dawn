@@ -11,15 +11,21 @@ Chenyu Zhang, Alan Morelos
 make sure you are using node v23.0.0
 
 `cd client`
+
 `npm ci`
+
 `npm start`
 
 # how to run server-crawler
 
 `cd server-crawler`
+
 `conda create -n dawn-crawler python=3.11`
+
 `conda activate dawn-crawler`
+
 `pip install -r requirements.txt`
+
 `python main.py`
 
 # how to run server-summarizer
@@ -27,8 +33,11 @@ make sure you are using node v23.0.0
 Note that all of this should be able to run on a separate machine, you just need to modify `config.py` with the correct machine details.
 
 `cd server-summarizer`
+
 `conda create -n dawn-summarizer python=3.11`
+
 `conda activate dawn-summarizer`
+
 `pip install -r requirements.txt`
 
 ## Terminal 1: Primary leader
