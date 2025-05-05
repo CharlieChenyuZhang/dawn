@@ -14,9 +14,12 @@ from heartbeat import HeartbeatService
 import config
 from firecrawl import FirecrawlApp, ScrapeOptions
 import os
+import httpx
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+SUMMARIZER_URL = "http://localhost:8002/summarize"
 
 class CrawlerWorkerNode:
     def __init__(self, worker_id: str, host: str, port: int, focus_area: str):
@@ -110,8 +113,27 @@ class CrawlerWorkerNode:
             page = self.firecrawl.scrape_url(task.url, formats=task.formats)
             page_content = page.markdown
             map_result = self.firecrawl.map_url(task.url).links
+
+            # Send markdown to summarizer
+            summary = None
+            try:
+                response = httpx.post(
+                    SUMMARIZER_URL,
+                    json={"text": page_content, "url": task.url, "title": getattr(task, 'title', None)},
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    summary_data = response.json()
+                    summary = summary_data.get("summary")
+                    logger.info(f"Summary: {summary}")
+                else:
+                    logger.warning(f"Failed to get summary: {response.status_code}")
+            except Exception as e:
+                logger.warning(f"Error calling summarizer service: {str(e)}")
+
             result = {
                 "markdown": page_content,
+                "summary": summary,
                 "map": map_result,
                 "url": task.url,
                 "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
