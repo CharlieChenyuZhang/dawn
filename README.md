@@ -18,15 +18,39 @@ make sure you are using node v23.0.0
 
 # how to run server-crawler
 
-`cd server-crawler`
+1. **Install dependencies**
 
-`conda create -n dawn-crawler python=3.11`
+   ```sh
+   cd server-crawler
+   conda create -n dawn-crawler python=3.11
+   conda activate dawn-crawler
+   pip install -r requirements.txt
+   ```
 
-`conda activate dawn-crawler`
+2. **Set up your environment variables**  
+   Create a file named `.env` in the `server-crawler` directory with the following content:
 
-`pip install -r requirements.txt`
+   ```
+   OPENAI_API_KEY=your_key
+   FIRECRAWL_API_KEY=your_actual_api_key
+   ```
 
-`python main.py`
+   Replace `your_actual_api_key` with your real Firecrawl API key.
+
+3. **Run a leader node**
+   ```sh
+   python run_leader.py primary
+   python run_leader.py backup-1
+   python run_leader.py backup-2
+   ```
+   You can run multiple workers by changing the number (1, 2, or 3).
+4. **Run a worker node**
+   ```sh
+   python run_worker.py 1
+   python run_worker.py 2
+   python run_worker.py 3
+   ```
+   You can run multiple workers by changing the number (1, 2, or 3).
 
 # how to run server-summarizer
 
