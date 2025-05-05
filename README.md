@@ -1,6 +1,6 @@
 # Project Name
 
-DAWN: Distributed Agentic Workflow for News (with Anthropic's MCP \& Google A2A Protocol Integration)
+DAWN: Distributed Agentic Workflow for News
 
 # Authors
 
