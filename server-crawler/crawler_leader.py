@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from shared_models import (
     NodeType, NodeStatus, CrawlTask, TaskStatus,
-    HeartbeatMessage, CrawlRequest, CrawlResponse, generate_task_id
+    HeartbeatMessage, CrawlRequest, CrawlResponse, generate_task_id, CrawlMultiResponse
 )
 from heartbeat import HeartbeatService
 from state_manager import StateManager
@@ -58,7 +58,7 @@ class CrawlerLeader:
         self.state_sync_thread = None
 
     def setup_routes(self):
-        @self.app.post("/crawl", response_model=CrawlResponse)
+        @self.app.post("/crawl", response_model=CrawlMultiResponse)
         async def crawl_urls(request: CrawlRequest):
             if not self.is_active_leader:
                 if self.current_leader_id:
@@ -73,7 +73,7 @@ class CrawlerLeader:
                         )
                 raise HTTPException(status_code=503, detail="This node is not the active leader")
             # Create a crawl task for each URL
-            results = []
+            task_ids = []
             for url in request.urls:
                 task_id = generate_task_id()
                 task = CrawlTask(
@@ -86,8 +86,24 @@ class CrawlerLeader:
                 self.state.add_task(task)
                 logger.info(f"Created crawl task {task_id} for URL: {url}")
                 self.assign_task_to_worker(task)
-                results.append({"task_id": task_id, "url": url, "status": "processing"})
-            return {"markdown": "", "summary": None, "url": request.urls[0], "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "map": []}
+                task_ids.append(task_id)
+            # Wait for all tasks to finish or timeout (e.g., 60 seconds)
+            results = await self.wait_for_tasks(task_ids, timeout=60)
+            crawl_results = []
+            for tid in task_ids:
+                info = results.get(tid, {})
+                result = info.get("result", {}) or {}
+                crawl_results.append(CrawlResponse(
+                    markdown=result.get("markdown", ""),
+                    summary=result.get("summary"),
+                    url=result.get("url", request.urls[task_ids.index(tid)]),
+                    timestamp=result.get("timestamp", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())),
+                    map=result.get("map", [])
+                ))
+            return CrawlMultiResponse(
+                results=crawl_results,
+                timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            )
 
         @self.app.post("/heartbeat")
         async def receive_heartbeat(heartbeat: HeartbeatMessage):
@@ -182,4 +198,30 @@ class CrawlerLeader:
         self.heartbeat.start()
         import uvicorn
         logger.info(f"Starting leader node {self.node_id} on {self.host}:{self.port}")
-        uvicorn.run(self.app, host=self.host, port=self.port) 
+        uvicorn.run(self.app, host=self.host, port=self.port)
+
+    async def wait_for_tasks(self, task_ids, timeout=60):
+        """
+        Wait for all tasks in task_ids to be completed or failed, or until timeout (seconds).
+        Returns a dict of task_id -> result/status.
+        """
+        import asyncio
+        start_time = time.time()
+        while True:
+            all_done = True
+            results = {}
+            for task_id in task_ids:
+                task = self.state.get_task(task_id)
+                if not task:
+                    results[task_id] = {"status": "not_found"}
+                    continue
+                if task.status in [TaskStatus.COMPLETED, TaskStatus.FAILED]:
+                    results[task_id] = {
+                        "status": task.status,
+                        "result": getattr(task, "result", None)
+                    }
+                else:
+                    all_done = False
+            if all_done or (time.time() - start_time) > timeout:
+                return results
+            await asyncio.sleep(1) 

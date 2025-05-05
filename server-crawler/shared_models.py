@@ -60,6 +60,10 @@ class CrawlResponse(BaseModel):
     timestamp: str
     map: List[str]
 
+class CrawlMultiResponse(BaseModel):
+    results: List[CrawlResponse]
+    timestamp: str
+
 class ElectionMessage(BaseModel):
     candidate_id: str
     priority: int
