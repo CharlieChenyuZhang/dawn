@@ -19,7 +19,7 @@ import httpx
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-SUMMARIZER_URL = "http://localhost:8002/summarize"
+SUMMARIZER_URL = "http://localhost:8001/summarize"
 
 class CrawlerWorkerNode:
     def __init__(self, worker_id: str, host: str, port: int, focus_area: str):

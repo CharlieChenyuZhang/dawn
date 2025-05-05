@@ -4,6 +4,7 @@ import "./CrawlerInterface.css";
 const CrawlerInterface = () => {
   const [agents, setAgents] = useState([{ url: "" }]);
   const [summaries, setSummaries] = useState([]);
+
   const [searchDepth, setSearchDepth] = useState(4);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingUrls, setLoadingUrls] = useState([]);
@@ -37,7 +38,7 @@ const CrawlerInterface = () => {
       validUrls.forEach(async (agent, index) => {
         setLoadingUrls((prev) => [...prev, agent.url]);
         try {
-          const response = await fetch("http://localhost:8000/crawl", {
+          const response = await fetch("http://localhost:8300/crawl", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -46,16 +47,35 @@ const CrawlerInterface = () => {
               urls: [agent.url],
             }),
           });
-          const data = await response.json();
-          setSummaries((prevSummaries) => [
-            ...prevSummaries,
-            {
-              summary: data?.summary,
-              url: data?.url,
-              markdown: data?.markdown,
-              error: null,
-            },
-          ]);
+          let data = await response.json();
+          console.log("data before", data);
+          data = data?.results;
+          console.log("data", data);
+          if (Array.isArray(data)) {
+            setSummaries((prevSummaries) => [
+              ...prevSummaries,
+              ...data.map((result) => ({
+                summary: result?.summary,
+                url: result?.url,
+                markdown: result?.markdown,
+                error: null,
+                timestamp: result?.timestamp,
+                map: Array.isArray(result?.map) ? result.map : [],
+              })),
+            ]);
+          } else {
+            setSummaries((prevSummaries) => [
+              ...prevSummaries,
+              {
+                summary: data?.summary,
+                url: data?.url,
+                markdown: data?.markdown,
+                error: null,
+                timestamp: data?.timestamp,
+                map: Array.isArray(data?.map) ? data.map : [],
+              },
+            ]);
+          }
         } catch (error) {
           setSummaries((prevSummaries) => [
             ...prevSummaries,
@@ -184,14 +204,16 @@ const CrawlerInterface = () => {
                       {each.url}
                     </a>
                   </div>
+                  {each.timestamp && (
+                    <div className="summary-timestamp">
+                      <strong>Crawled at:</strong>{" "}
+                      {new Date(each.timestamp).toLocaleString()}
+                    </div>
+                  )}
                   <div className="summary-title">
                     <strong>Summary:</strong>
                   </div>
                   <div className="summary-text">{each.summary}</div>
-                  <div className="summary-title">
-                    <strong>Markdown:</strong>
-                  </div>
-                  <pre className="summary-markdown">{each.markdown}</pre>
                 </>
               )}
             </div>
