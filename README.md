@@ -115,6 +115,11 @@ Note that all of this should be able to run on a separate machine, you just need
 <img width="1728" alt="Screenshot 2025-05-04 at 6 06 04 PM" src="https://github.com/user-attachments/assets/97e28740-570b-4fd8-9855-de1128e48498" />
 <img width="1728" alt="Screenshot 2025-05-04 at 6 06 45 PM" src="https://github.com/user-attachments/assets/cb392c1c-ecfa-4656-b3bb-74a5cd0e83b6" />
 
+# replication local testing
+NOTE: althought we use different ports and processes to demonstrate the distributed system when running locally, they can be deployed in different cloud services (e.g. AWS/GCP) and all you need to do is to change the `config.js` to specify the host and port. 
+![Screenshot 2025-05-04 at 8 57 30 PM](https://github.com/user-attachments/assets/f0bb5a98-efab-4b03-a90b-4efc18044aff)
+
+
 # Acknowledgements
 
 This project was developed as the final assignment for COMPSCI 2620: Introduction to Distributed Computing (Spring 2025) at Harvard University.
