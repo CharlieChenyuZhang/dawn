@@ -52,6 +52,18 @@ make sure you are using node v23.0.0
    ```
    You can run multiple workers by changing the number (1, 2, or 3).
 
+# how to run server-summarizer-no-replication-implementation (for testing purpose)
+
+`cd server-summarizer-no-replication-implementation`
+
+`conda create -n server-summarizer-no-replication-implementation python=3.11`
+
+`conda activate server-summarizer-no-replication-implementation`
+
+`pip install -r requirements.txt`
+
+`python main.py`
+
 # how to run server-summarizer
 
 Note that all of this should be able to run on a separate machine, you just need to modify `config.py` with the correct machine details.
