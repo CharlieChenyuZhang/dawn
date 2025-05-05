@@ -328,17 +328,32 @@ class SummarizerLeader:
             
             if not active_backups:
                 # No other backups available, become leader
-                logger.info("No other backup leaders available, becoming leader")
+                logger.info("No other backups available, becoming leader")
                 should_become_leader = True
             else:
-                # First backup leader takes over if it's us, otherwise the second one waits
+                # If we're backup 1, become leader
                 if self.node_id == config.BACKUP_LEADERS[0]["id"]:
                     logger.info("This node is the first backup, becoming leader")
                     should_become_leader = True
                 else:
-                    # We're backup 2, only become leader if backup 1 is not available
+                    # We're backup 2, check if backup 1 is available
                     backup1_id = config.BACKUP_LEADERS[0]["id"]
-                    if not self.heartbeat.is_node_active(backup1_id):
+                    backup1_active = False
+                    
+                    # More aggressive check for backup-1's status
+                    try:
+                        # Try direct health check instead of relying on heartbeat state
+                        backup1_info = config.get_leader_by_id(backup1_id)
+                        if backup1_info:
+                            health_url = f"http://{backup1_info['host']}:{backup1_info['port']}/health"
+                            response = requests.get(health_url, timeout=2)
+                            if response.status_code == 200:
+                                backup1_active = True
+                    except Exception as e:
+                        logger.warning(f"Failed to contact backup-1: {str(e)}")
+                        backup1_active = False
+
+                    if not backup1_active:
                         logger.info(f"Backup 1 ({backup1_id}) is not available, becoming leader")
                         should_become_leader = True
                     else:
@@ -351,7 +366,7 @@ class SummarizerLeader:
             logger.error(f"Error in leader selection: {str(e)}")
         finally:
             self.leader_selection_in_progress = False
-    
+                
     def _announce_leadership(self):
         """Announce new leadership to all nodes"""
         logger.info(f"Announcing leadership as {self.node_id}")
