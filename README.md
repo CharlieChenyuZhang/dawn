@@ -111,9 +111,11 @@ Note that all of this should be able to run on a separate machine, you just need
 `python test_client.py test`
 
 # UIs
+<img width="1725" alt="Screenshot 2025-05-04 at 9 13 58 PM" src="https://github.com/user-attachments/assets/090a86a8-1878-45f3-8a37-e095e5f90a2a" />
+<img width="1725" alt="Screenshot 2025-05-04 at 9 14 04 PM" src="https://github.com/user-attachments/assets/b8ad58ac-7478-449e-b3e8-f90c5b30b763" />
+<img width="1725" alt="Screenshot 2025-05-04 at 9 14 07 PM" src="https://github.com/user-attachments/assets/d685a005-8451-4264-a701-189ae74028f5" />
 
-<img width="1728" alt="Screenshot 2025-05-04 at 6 06 04 PM" src="https://github.com/user-attachments/assets/97e28740-570b-4fd8-9855-de1128e48498" />
-<img width="1728" alt="Screenshot 2025-05-04 at 6 06 45 PM" src="https://github.com/user-attachments/assets/cb392c1c-ecfa-4656-b3bb-74a5cd0e83b6" />
+
 
 # replication local testing
 NOTE: althought we use different ports and processes to demonstrate the distributed system when running locally, they can be deployed in different cloud services (e.g. AWS/GCP) and all you need to do is to change the `config.js` to specify the host and port. 
